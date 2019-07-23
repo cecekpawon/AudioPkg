@@ -160,7 +160,7 @@ BootChimeDxePlay(VOID) {
     }
 
     // Setup playback.
-    Status = AudioIo->SetupPlayback(AudioIo, OutputIndex, OutputVolume,
+    Status = AudioIo->SetupPlayback(AudioIo, (UINT8)OutputIndex, OutputVolume,
         mSoundFreq, mSoundBits, mSoundChannels);
     if (EFI_ERROR(Status)) {
         Print(L"BootChimeDxe: Error setting up playback: %r\n", Status);

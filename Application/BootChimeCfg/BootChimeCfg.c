@@ -65,6 +65,28 @@ WaitForKey(
     if (!SimpleTextIn || !KeyValue)
         return EFI_INVALID_PARAMETER;
 
+    while (TRUE) {
+        // Wait for key.
+        gBS->WaitForEvent(1, &(SimpleTextIn->WaitForKey), &EventIndex);
+
+        // Get key value.
+        Status = SimpleTextIn->ReadKeyStroke(SimpleTextIn, &InputKey);
+
+        if (!EFI_ERROR(Status)) {
+
+            // If \n, wait again.
+            if (InputKey.UnicodeChar == L'\n')
+                return WaitForKey(SimpleTextIn, KeyValue);
+
+            // Success.
+            *KeyValue = InputKey.UnicodeChar;
+            return EFI_SUCCESS;
+        }
+    }
+
+    return EFI_DEVICE_ERROR;
+
+    /*
     // Wait for key.
     Status = gBS->WaitForEvent(1, &(SimpleTextIn->WaitForKey), &EventIndex);
     if (EFI_ERROR(Status))
@@ -82,6 +104,7 @@ WaitForKey(
     // Success.
     *KeyValue = InputKey.UnicodeChar;
     return EFI_SUCCESS;
+    */
 }
 
 EFI_STATUS
@@ -412,7 +435,7 @@ TestOutput(VOID) {
 
     // Setup playback.
     Print(L"Playing back audio...\n");
-    Status = AudioIo->SetupPlayback(AudioIo, OutputIndex, OutputVolume, ChimeDataFreq, ChimeDataBits, ChimeDataChannels);
+    Status = AudioIo->SetupPlayback(AudioIo, (UINT8)OutputIndex, OutputVolume, ChimeDataFreq, ChimeDataBits, ChimeDataChannels);
     if (EFI_ERROR(Status))
         return Status;
 
